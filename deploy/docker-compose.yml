@@ -5,21 +5,27 @@ services:
     image: mysql:8.0.35
     container_name: mysql-db
     restart: always
+    env_file:
+      - .env
+    environment:
+      - MYSQL_PORT
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
     # general_log can be turned off in production
     command: [ "mysqld",
                "--require_secure_transport=ON",
                "--tls-version=TLSv1.3",
                "--default_authentication_plugin=mysql_native_password",
                "--ssl-ca=/etc/certs/ca.cer",
-               "--ssl-cert=/etc/certs/server.cer",
-               "--ssl-key=/etc/certs/server.key",
+               "--ssl-cert=/etc/certs/db-server.cer",
+               "--ssl-key=/etc/certs/db-server.key",
                "--general_log=ON" ]
     ports:
       # port exposed : port running inside container
-      - '3306:3306'
+      - "${MYSQL_PORT}:3306"
     volumes:
-      - ./certs:/etc/certs
-      - ./init-scripts:/docker-entrypoint-initdb.d
-    env_file:
-      - ../.env
+      - ./database/certs:/etc/certs
+      - ./database/init-scripts:/docker-entrypoint-initdb.d
 
