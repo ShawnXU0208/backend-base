@@ -17,7 +17,7 @@ services:
     command: [ "mysqld",
                "--require_secure_transport=ON",
                "--tls-version=TLSv1.3",
-               "--default_authentication_plugin=mysql_native_password",
+               "--default_authentication_plugin=caching_sha2_password",
                "--ssl-ca=/etc/certs/ca.cer",
                "--ssl-cert=/etc/certs/db-server.cer",
                "--ssl-key=/etc/certs/db-server.key",
