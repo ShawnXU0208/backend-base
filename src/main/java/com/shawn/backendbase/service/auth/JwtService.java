@@ -1,11 +1,14 @@
 package com.shawn.backendbase.service.auth;
 
 import com.shawn.backendbase.data.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,19 @@ public class JwtService {
 
   @Value("${app.domain}")
   private String issuer;
+
+  public Claims extractAllClaims(String token) {
+    try {
+      return Jwts.parser().verifyWith(this.getSecretKey()).build().parseSignedClaims(token).getPayload();
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  public boolean isTokenClaimsValid(final Claims claims) {
+    // check if token is expired
+    return claims.getExpiration().after(new Date());
+  }
 
   public String generateToken(final User user) {
     return Jwts.builder()
@@ -42,5 +58,9 @@ public class JwtService {
   private Key getSigningKey() {
     byte[] keyBytes = this.secretKey.getBytes(StandardCharsets.UTF_8);
     return Keys.hmacShaKeyFor(keyBytes);
+  }
+
+  private SecretKeySpec getSecretKey() {
+    return new SecretKeySpec(this.secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName());
   }
 }

@@ -50,4 +50,5 @@ public class GlobalExceptionHandler {
     body.put("errors", Collections.singletonList(ex.getMessage()));
     return new ResponseEntity<>(body, HttpStatus.CONFLICT);
   }
+  
 }

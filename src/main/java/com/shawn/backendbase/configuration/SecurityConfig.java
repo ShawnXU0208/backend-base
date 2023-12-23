@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -23,8 +24,11 @@ public class SecurityConfig {
 
   private final UserDetailsService userDetailsService;
 
-  public SecurityConfig(final UserDetailsService userDetailsService) {
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+  public SecurityConfig(final UserDetailsService userDetailsService, final JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.userDetailsService = userDetailsService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
   }
 
   @Bean
@@ -52,6 +56,7 @@ public class SecurityConfig {
         .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
             handling -> handling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
         .authorizeHttpRequests(authorize -> authorize

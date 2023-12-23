@@ -8,6 +8,7 @@ import com.shawn.backendbase.service.auth.model.SignUpResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +33,10 @@ public class UserRestController {
   @PostMapping(path = "signin")
   public ResponseEntity<SignInResponse> signIn(@Valid @RequestBody SignInRequest request) {
     return ResponseEntity.ok(this.authService.signIn(request));
+  }
+
+  @GetMapping(path = "myinfo")
+  public ResponseEntity<String> myInfo() {
+    return ResponseEntity.ok("i am verified");
   }
 }
