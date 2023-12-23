@@ -24,11 +24,15 @@ public class AuthService {
 
   private final PasswordEncoder passwordEncoder;
 
+  private final JwtService jwtService;
+
   @Autowired
-  public AuthService(final AuthenticationManager authenticationManager, final UserRepository userRepository, final PasswordEncoder passwordEncoder) {
+  public AuthService(final AuthenticationManager authenticationManager, final UserRepository userRepository, final PasswordEncoder passwordEncoder,
+                     final JwtService jwtService) {
     this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
   }
 
   /**
@@ -45,11 +49,11 @@ public class AuthService {
     user.setPassword(this.passwordEncoder.encode(request.getPassword()));
 
     try {
-      this.userRepository.save(user);
+      final User newUser = this.userRepository.save(user);
+      return new SignUpResponse(user.getAccountName(), this.jwtService.generateToken(newUser));
     } catch (DataIntegrityViolationException e) {
       throw new DuplicatedKeyException(DuplicatedKeyException.refactoredMsg(e));
     }
-    return new SignUpResponse(user.getAccountName(), "token");
   }
 
   /**
@@ -61,6 +65,7 @@ public class AuthService {
   public SignInResponse signIn(final SignInRequest request) {
     final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
     final Authentication auth = authenticationManager.authenticate(authToken);
-    return new SignInResponse(auth.getName(), "token");
+    final User user = this.userRepository.findByAccountName(request.getUsername()).get();
+    return new SignInResponse(auth.getName(), this.jwtService.generateToken(user));
   }
 }
