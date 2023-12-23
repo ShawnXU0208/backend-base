@@ -16,7 +16,7 @@ public class DuplicatedKeyException extends RuntimeException {
   }
 
   /**
-   * Refactor the original error message
+   * Refactor the original error message.
    *
    * @param exception DataIntegrityViolationException
    * @return refactored error message

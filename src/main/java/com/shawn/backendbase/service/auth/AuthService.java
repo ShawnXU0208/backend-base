@@ -43,6 +43,7 @@ public class AuthService {
     user.setEmail(request.getEmail());
     user.setRole(request.getRole());
     user.setPassword(this.passwordEncoder.encode(request.getPassword()));
+
     try {
       this.userRepository.save(user);
     } catch (DataIntegrityViolationException e) {
@@ -60,6 +61,6 @@ public class AuthService {
   public SignInResponse signIn(final SignInRequest request) {
     final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
     final Authentication auth = authenticationManager.authenticate(authToken);
-    return new SignInResponse(request.getUsername(), "token");
+    return new SignInResponse(auth.getName(), "token");
   }
 }
