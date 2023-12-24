@@ -7,10 +7,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class JwtService {
@@ -32,15 +37,27 @@ public class JwtService {
     }
   }
 
-  public boolean isTokenClaimsValid(final Claims claims) {
+  public boolean isTokenClaimsValid(final Claims claims, final User loadedUser) {
     // check if token is expired
-    return claims.getExpiration().after(new Date());
+    if (claims.getExpiration().before(new Date())) {
+      return false;
+    }
+
+    // verify claim (roles & userID)
+    return getAuthoritiesFromClaims(claims).equals(loadedUser.getAuthorities())
+        && claims.get("userID").toString().equals(loadedUser.getId().toString());
+
+  }
+
+  private Collection<? extends GrantedAuthority> getAuthoritiesFromClaims(final Claims claims) {
+    return Arrays.stream(claims.get("roles").toString().split(",")).map(
+        SimpleGrantedAuthority::new).toList();
   }
 
   public String generateToken(final User user) {
     return Jwts.builder()
         .subject(user.getUsername())
-        .claim("roles", user.getAuthorities())
+        .claim("roles", StringUtils.collectionToDelimitedString(user.getAuthorities(), ","))
         .claim("userID", user.getId())
         .issuer(this.issuer)
         .issuedAt(new Date())

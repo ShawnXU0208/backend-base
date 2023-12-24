@@ -1,5 +1,6 @@
 package com.shawn.backendbase.configuration;
 
+import com.shawn.backendbase.data.User;
 import com.shawn.backendbase.service.auth.JwtService;
 import com.shawn.backendbase.service.auth.UserDetailsService;
 import io.jsonwebtoken.Claims;
@@ -23,7 +24,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private static final String JWT_TOKEN_PREFIX = "Bearer ";
   private final JwtService jwtService;
-
   private final UserDetailsService userDetailsService;
 
   @Autowired
@@ -45,13 +45,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // validate the token
     final String token = authHeader.substring(7);
     final Claims claims = this.jwtService.extractAllClaims(token);
-    if (claims == null || !this.jwtService.isTokenClaimsValid(claims)) {
+    if (claims == null) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+    final UserDetails userDetails = this.userDetailsService.loadUserByUsername(claims.getSubject());
+    if (!this.jwtService.isTokenClaimsValid(claims, (User) userDetails)) {
       filterChain.doFilter(request, response);
       return;
     }
 
+
     // token is valid
-    final UserDetails userDetails = this.userDetailsService.loadUserByUsername(claims.getSubject());
     final var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     // tell the Authentication object more details about Http request
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
