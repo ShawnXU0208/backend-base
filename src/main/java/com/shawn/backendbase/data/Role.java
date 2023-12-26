@@ -1,7 +1,7 @@
 package com.shawn.backendbase.data;
 
 /**
- * Valid roles.
+ * Valid roles of {@link User}.
  */
 public enum Role {
   ROLE_USER,

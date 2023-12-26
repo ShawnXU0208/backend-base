@@ -15,6 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for authentication (user sign in, user sign up).
+ */
 @Service
 public class AuthService {
 
@@ -26,6 +29,7 @@ public class AuthService {
 
   private final JwtService jwtService;
 
+  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   @Autowired
   public AuthService(final AuthenticationManager authenticationManager, final UserRepository userRepository, final PasswordEncoder passwordEncoder,
                      final JwtService jwtService) {

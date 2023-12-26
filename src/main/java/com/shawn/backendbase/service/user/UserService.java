@@ -4,6 +4,9 @@ import com.shawn.backendbase.data.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The service for user.
+ */
 @Service
 public class UserService {
 

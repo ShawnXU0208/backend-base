@@ -17,6 +17,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * Service for jwt token related stuff.
+ */
 @Service
 public class JwtService {
 
@@ -29,6 +32,12 @@ public class JwtService {
   @Value("${app.domain}")
   private String issuer;
 
+  /**
+   * Extract all claims from the token string.
+   *
+   * @param token token string
+   * @return Claims
+   */
   public Claims extractAllClaims(String token) {
     try {
       return Jwts.parser().verifyWith(this.getSecretKey()).build().parseSignedClaims(token).getPayload();
@@ -37,6 +46,13 @@ public class JwtService {
     }
   }
 
+  /**
+   * Validate if the claims from jwt token is valid.
+   *
+   * @param claims     token claims get by extractAllClaims method
+   * @param loadedUser the user details from database for comparing user info from claims
+   * @return true if valid, false otherwise
+   */
   public boolean isTokenClaimsValid(final Claims claims, final User loadedUser) {
     // check if token is expired
     if (claims.getExpiration().before(new Date())) {
@@ -54,6 +70,12 @@ public class JwtService {
         SimpleGrantedAuthority::new).toList();
   }
 
+  /**
+   * Create the jwt token based on the received {@link User}.
+   *
+   * @param user user
+   * @return jwt token string
+   */
   public String generateToken(final User user) {
     return Jwts.builder()
         .subject(user.getUsername())

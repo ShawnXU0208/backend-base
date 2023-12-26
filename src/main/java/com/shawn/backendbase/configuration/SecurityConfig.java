@@ -1,5 +1,6 @@
 package com.shawn.backendbase.configuration;
 
+import com.shawn.backendbase.data.Role;
 import com.shawn.backendbase.service.auth.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration.
+ */
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfig {
@@ -36,6 +40,7 @@ public class SecurityConfig {
     return config.getAuthenticationManager();
   }
 
+  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   @Bean
   public AuthenticationProvider authenticationProvider() {
     final DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -49,8 +54,15 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  /**
+   * Filter chain security filter chain for api methods.
+   *
+   * @param http the http
+   * @return the security filter chain
+   * @throws Exception the exception
+   */
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
     http
         .securityMatcher("/api/**")
         .cors(AbstractHttpConfigurer::disable)
@@ -62,6 +74,27 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/api/user/signin").permitAll()
             .requestMatchers("/api/user/signup").permitAll()
+            .requestMatchers("/api/user/admin/**").hasAuthority(Role.ROLE_ADMIN.name())
+            .requestMatchers("/api/user/user/**").hasAuthority(Role.ROLE_USER.name())
+            .anyRequest().authenticated());
+
+    return http.build();
+  }
+
+  /**
+   * Filter chain security filter chain for websocket.
+   *
+   * @param http the http
+   * @return the security filter chain
+   * @throws Exception the exception
+   */
+  @Bean
+  public SecurityFilterChain websocketFilterChain(HttpSecurity http) throws Exception {
+    // TODO: Complete socket implementation
+    http
+        .securityMatcher("/ws/**")
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/ws/**").permitAll()
             .anyRequest().authenticated());
 
     return http.build();

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * User Rest Controller.
+ */
 @RestController
 @RequestMapping("api/user")
 public class UserRestController {
@@ -35,8 +38,13 @@ public class UserRestController {
     return ResponseEntity.ok(this.authService.signIn(request));
   }
 
-  @GetMapping(path = "myinfo")
-  public ResponseEntity<String> myInfo() {
-    return ResponseEntity.ok("i am verified");
+  @GetMapping(path = "user/my-info")
+  public ResponseEntity<String> userInfo() {
+    return ResponseEntity.ok("user info is available");
+  }
+
+  @GetMapping(path = "admin/my-info")
+  public ResponseEntity<String> adminInfo() {
+    return ResponseEntity.ok("admin info is available");
   }
 }

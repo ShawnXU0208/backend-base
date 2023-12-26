@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Sign in response.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
